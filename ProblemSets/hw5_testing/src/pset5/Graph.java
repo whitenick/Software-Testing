@@ -1,3 +1,5 @@
+// nww295
+
 package pset5;
 
 import java.util.*;
@@ -35,8 +37,19 @@ public class Graph {
 
     public void addEdge(int from, int to) {
         // postcondition: adds directed edge "from" -> "to" to this graph
-        edges[from][to] = true;
+        if(isValid(from) && isValid(to)) {
+            edges[from][to] = true;
+        } else {
+            throw new IllegalArgumentException();
+        }
 
+    }
+
+    public boolean isValid(int node) {
+        if(!(node < 0) && (node < numNodes)) {
+            return true;
+        }
+        return false;
     }
 
     public boolean reachable(Set<Integer> sources, Set<Integer> targets) {
@@ -51,21 +64,48 @@ public class Graph {
         //  node "n" in set "sources" such that there is a directed
         //  path that starts at "n" and ends at "m" in "this"
 
+        // target check
+        for(Integer source: sources) {
+            if(!(isValid(source))) {
+                return false;
+            }
+        }
+
+        // source check
+        if(targets.isEmpty()) {
+            return true;
+        }
+        for(Integer target: targets) {
+            if(!(isValid(target))) {
+                return false;
+            }
+        }
+
+        // queue of nodes to explore. Pop the head.
         PriorityQueue<Integer> queue = new PriorityQueue<>();
         Set<Integer> reached = new HashSet<>();
         for(Integer source: sources) {
             queue.add(source);
+            if(targets.contains(source)) {
+                reached.add(source);
+            }
             while(!queue.isEmpty()) {
                 int head = queue.remove();
                 for(int i = 0; i < numNodes; i++) {
                     if(edges[head][i] == true) {
                         if(targets.contains(i)) {
-                            reached.add(i);
+                            reached.add(i);             // if node reached is also an element of targets, add to set
                         }
                         queue.add(i);
                     }
                 }
             }
+        }
+        for(Integer target: targets) {
+            if(!(reached.contains(target))) {
+                return false;
+            }
+            return true;
         }
         return false;
     }
